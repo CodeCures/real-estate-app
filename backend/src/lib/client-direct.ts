@@ -13,6 +13,7 @@ import * as path from "path";
 import http from "http";
 import dotenv from "dotenv";
 import { createApiRouter } from "../routes";
+import { setupSwagger } from "./swagger";
 import verifyToken from "../middlewares/jwtMiddleware";
 import { databaseRecords } from "../helpers";
 
@@ -78,6 +79,7 @@ export class DirectClient {
         this.app.use(cors());
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
+        setupSwagger(this.app)
     }
 
     private setupRoutes() {
