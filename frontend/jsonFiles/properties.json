@@ -1,0 +1,57 @@
+[
+    {
+        "id": 1,
+        "name": "Modern Beach House",
+        "slug": "Modern-Beach-House",
+        "location": "Malibu, California",
+        "price": 3500000,
+        "currentPrice": 3400000,
+        "image": "https://flowbite-react.com/images/products/apple-watch.png",
+        "description": "A luxurious beachfront property with stunning ocean views and modern amenities.",
+        "type": "House"
+    },
+    {
+        "id": 2,
+        "name": "Cozy Apartment",
+        "slug": "Cozy-Apartment",
+        "location": "Downtown New York",
+        "price": 1200000,
+        "currentPrice": 1150000,
+        "image": "https://flowbite-react.com/images/products/apple-watch.png",
+        "description": "A spacious apartment with modern amenities in the heart of the city.",
+        "type": "Apartment"
+    },
+    {
+        "id": 3,
+        "name": "Luxury Villa",
+        "slug": "Luxury-Villa",
+        "location": "Beverly Hills, California",
+        "price": 7500000,
+        "currentPrice": 7200000,
+        "image": "https://flowbite-react.com/images/products/apple-watch.png",
+        "description": "An extravagant villa with panoramic views, private pool, and extensive grounds.",
+        "type": "Villa"
+    },
+    {
+        "id": 4,
+        "name": "Rustic Cabin",
+        "slug": "Rustic-Cabin",
+        "location": "Lake Tahoe, California",
+        "price": 950000,
+        "currentPrice": 925000,
+        "image": "https://flowbite-react.com/images/products/apple-watch.png",
+        "description": "A charming cabin nestled in the woods, perfect for a weekend retreat.",
+        "type": "Cabin"
+    },
+    {
+        "id": 5,
+        "name": "Urban Loft",
+        "slug": "Urban-Loft",
+        "location": "Chicago, Illinois",
+        "price": 800000,
+        "currentPrice": 780000,
+        "image": "https://flowbite-react.com/images/products/apple-watch.png",
+        "description": "An industrial-style loft in a prime urban location with stunning city views.",
+        "type": "Loft"
+    }
+]
