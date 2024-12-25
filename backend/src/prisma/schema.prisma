@@ -1,0 +1,259 @@
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  INVESTOR
+  LANDLORD
+  TENANT
+  ADMIN
+}
+
+enum PropertyType {
+  RESIDENTIAL
+  COMMERCIAL
+  INDUSTRIAL
+  LAND
+  MULTI_FAMILY
+  SINGLE_FAMILY
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  OCCUPIED
+  UNDER_RENOVATION
+  SOLD
+  PENDING
+}
+
+enum ExpenseType {
+  MAINTENANCE
+  REPAIR
+  UTILITY
+  TAX
+  INSURANCE
+  MORTGAGE
+  MANAGEMENT_FEE
+  MISCELLANEOUS
+}
+
+enum RentalStatus {
+  VACANT
+  LEASED
+  NOTICE_GIVEN
+}
+
+enum PortfolioRole {
+  MANAGER
+  CONTRIBUTOR
+  VIEWER
+}
+
+enum ActivityType {
+  PORTFOLIO_CREATED
+  MEMBERS_UPDATED
+  PROPERTIES_ADDED
+  PROPERTY_REMOVED
+  MEMBER_JOINED
+  MEMBER_LEFT
+}
+
+model User {
+  id                  String              @id @default(uuid())
+  email               String              @unique
+  name                String?
+  role                UserRole            @default(TENANT)
+  password            String
+  resetPasswordToken  String?
+  resetPasswordExpires DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  // Relations
+  properties          Property[]
+  portfolioMemberships PortfolioMember[]
+  portfolioActivities PortfolioActivity[]
+
+  @@map("users")
+}
+
+model Property {
+  id                String                @id @default(uuid())
+  userId            String
+  name              String
+  description       String?
+  type              PropertyType
+  status            PropertyStatus        @default(AVAILABLE)
+
+  // Location Details
+  address           String
+  city              String
+  state             String
+  country           String
+  zipCode           String
+
+  // Financial Details
+  purchasePrice     Decimal               @db.Decimal(10, 2)
+  currentValue      Decimal               @db.Decimal(10, 2)
+  appreciationRate  Decimal?              @db.Decimal(5, 2)
+
+  // Rental Details
+  rentalStatus      RentalStatus          @default(VACANT)
+  monthlyRent       Decimal?              @db.Decimal(10, 2)
+
+  // Metadata
+  purchaseDate      DateTime
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  // Relations
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenses          Expense[]
+  maintenanceLogs   MaintenanceLog[]
+  rentalAgreements  RentalAgreement[]
+  performanceReports PropertyPerformanceReport[]
+  portfolioProperties PortfolioProperty[]
+
+  @@index([userId])
+  @@index([type, status])
+
+  @@map("properties")
+}
+
+model Expense {
+  id            String      @id @default(uuid())
+  propertyId    String
+  type          ExpenseType
+  amount        Decimal     @db.Decimal(10, 2)
+  date          DateTime
+  description   String?
+  vendor        String?
+
+  // Relations
+  property      Property    @relation(fields: [propertyId], references: [id])
+
+  createdAt     DateTime    @default(now())
+
+  @@index([propertyId, date])
+  @@map("expenses")
+}
+
+model MaintenanceLog {
+  id            String      @id @default(uuid())
+  propertyId    String
+  description   String
+  cost          Decimal     @db.Decimal(10, 2)
+  date          DateTime
+  performedBy   String?
+
+  // Relations
+  property      Property    @relation(fields: [propertyId], references: [id])
+
+  createdAt     DateTime    @default(now())
+
+  @@index([propertyId, date])
+  @@map("maintenance_logs")
+}
+
+model RentalAgreement {
+  id              String      @id @default(uuid())
+  propertyId      String
+  tenantName      String
+  startDate       DateTime
+  endDate         DateTime
+  monthlyRent     Decimal     @db.Decimal(10, 2)
+  securityDeposit Decimal     @db.Decimal(10, 2)
+
+  // Relations
+  property        Property    @relation(fields: [propertyId], references: [id])
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("rental_agreements")
+}
+
+model PropertyPerformanceReport {
+  id            String      @id @default(uuid())
+  propertyId    String
+
+  // Financial Metrics
+  totalRevenue  Decimal     @db.Decimal(10, 2)
+  totalExpenses Decimal     @db.Decimal(10, 2)
+  netIncome     Decimal     @db.Decimal(10, 2)
+  occupancyRate Decimal     @db.Decimal(5, 2)
+
+  // Time Period
+  reportPeriod  DateTime
+
+  // Relations
+  property      Property    @relation(fields: [propertyId], references: [id])
+
+  createdAt     DateTime    @default(now())
+
+  @@map("property_performance_reports")
+}
+
+model Portfolio {
+  id          String      @id @default(uuid())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members     PortfolioMember[]
+  properties  PortfolioProperty[]
+  activities  PortfolioActivity[]
+
+  @@map("portfolios")
+}
+
+model PortfolioMember {
+  id          String      @id @default(uuid())
+  portfolioId String
+  userId      String
+  role        PortfolioRole     @default(VIEWER)
+  joinedAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@unique([portfolioId, userId])
+  @@map("portfolio_members")
+}
+
+model PortfolioProperty {
+  id          String      @id @default(uuid())
+  portfolioId String
+  propertyId  String
+  addedAt     DateTime @default(now())
+
+  // Relations
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+  property    Property  @relation(fields: [propertyId], references: [id])
+
+  @@unique([portfolioId, propertyId])
+  @@map("portfolio_properties")
+}
+
+model PortfolioActivity {
+  id          String          @id @default(uuid())
+  portfolioId String
+  userId      String
+  actionType  ActivityType
+  details     Json?
+  createdAt   DateTime     @default(now())
+
+  // Relations
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@map("portfolio_activities")
+}
