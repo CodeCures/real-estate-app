@@ -1,0 +1,19 @@
+{
+  "name": "realtor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail \"pnpm run backend\" \"pnpm run frontend\"",
+    "start": "node backend/server.js",
+    "frontend": "wait-on http://localhost:3000 && pnpm --prefix frontend dev",
+    "backend": "pnpm --prefix backend dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "wait-on": "^7.2.0"
+  }
+}
