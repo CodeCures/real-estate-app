@@ -5,3 +5,4 @@
 model.gguf
 pnpm-lock.yaml
 .env
+db.sqlite
